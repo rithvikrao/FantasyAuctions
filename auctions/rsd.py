@@ -1,6 +1,6 @@
 import random
 
-# allPrefs = list of lists of ints of each bidder's preference ordering 
+# allPrefs = dict of lists of ints of each bidder's preference ordering 
 # over all players, identified by unique IDs 
 # numRounds = integer of the number of players on a given team
 
@@ -10,7 +10,7 @@ def rsd(allPrefs, numRounds):
     chosen = []
     # allocated = dict of bidder : list of their allocated players by ID pairs
     allocated = {key : [] for key in range(len(allPrefs))}
-    for i in range(numRounds):
+    for round in range(numRounds):
         for bidder in range(len(allPrefs)):
             bidderPrefs = allPrefs[bidder]
             i = 0
@@ -18,4 +18,4 @@ def rsd(allPrefs, numRounds):
                 i += 1
             allocated[bidder].append(bidderPrefs[i])
             chosen.append(bidderPrefs[i])
-    
+    return allocated
