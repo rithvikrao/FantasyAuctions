@@ -40,3 +40,14 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget):
 			# TODO: update allocs with allocations of bundle items
 			# TODO: update budgets for allocated bidders with VCG payment rule
 	return allocs
+
+
+def wdp(bids):
+	"""
+	Input:
+	* [bids] List of tuples. (bidder_id (int), subset of bundle (set), value for subset (int))
+
+	Output:
+	* List of lists. Each bidder receives list of allocated players from bundle.
+	"""
+	
