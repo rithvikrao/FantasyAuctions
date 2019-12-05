@@ -47,15 +47,32 @@ def wdp(preferences, nomination):
 	Output:
 	* List of lists. Each bidder receives list of allocated players from bundle.
 	"""
+	# Maintain list of tuples. First elt is allocation, second elt is its value.
+	poss = partition(nomination)
+
 	return
 
 def vcg_payment(preferences, nomination):
 	"""
 	Input: 
-	* [preferneces] List of dicts.
+	* [preferences] List of dicts.
 	* [nomination] Set.
 
 	Output:
 	* List of VCG payments. Each bidder receives a VCG payment.
 	"""
 	return
+
+# Stolen from https://stackoverflow.com/questions/19368375/set-partitions-in-python
+def partition(collection):
+    if len(collection) == 1:
+        yield [ collection ]
+        return
+
+    first = collection[0]
+    for smaller in partition(collection[1:]):
+        # insert `first` in each of the subpartition's subsets
+        for n, subset in enumerate(smaller):
+            yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
+        # put `first` in its own subset 
+        yield [ [ first ] ] + smaller
