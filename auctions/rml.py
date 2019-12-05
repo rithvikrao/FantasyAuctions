@@ -31,12 +31,7 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, pre
 		random.shuffle(bidders)
 		for i in range(len(bidders)):
 			# TODO: extract nominated bundle from bidder i's preferences
-			# TODO: ensure input is formatted correctly (handle TypeError)
 			# TODO: ensure nominated bundle is smaller than max_bundle_size AND nominating player has space for size of bundle
-			# TODO: for each combination of items in bundle:
-				# TODO: query all users for value only on permutations that are still feasible for them
-				# TODO: ensure input is formatted correctly
-				# TODO: ensure users have enough budget (negative bids okay)
 			# TODO: solve WDP on bundle with these values
 			# TODO: update allocs with allocations of bundle items
 			# TODO: update budgets for allocated bidders with VCG payment rule
@@ -52,5 +47,15 @@ def wdp(preferences, nomination):
 	Output:
 	* List of lists. Each bidder receives list of allocated players from bundle.
 	"""
+	return
 
-	
+def vcg_payment(preferences, nomination):
+	"""
+	Input: 
+	* [preferneces] List of dicts.
+	* [nomination] Set.
+
+	Output:
+	* List of VCG payments. Each bidder receives a VCG payment.
+	"""
+	return
