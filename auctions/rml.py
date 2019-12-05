@@ -1,4 +1,5 @@
 import random
+import copy
 
 def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, preferences):
 	"""
@@ -35,6 +36,7 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, pre
 			# TODO: solve WDP on bundle with these values
 			# TODO: update allocs with allocations of bundle items
 			# TODO: update budgets for allocated bidders with VCG payment rule
+			pass
 	return allocs
 
 
@@ -76,3 +78,37 @@ def partition(collection):
             yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
         # put `first` in its own subset 
         yield [ [ first ] ] + smaller
+
+# objects = list of objects
+# agents = int
+def get_allocations(objects, agents):
+	all_allocations = [] # list of list of lists
+	starting_allocation = []
+	for i in range(agents):
+		starting_allocation.append([])
+
+	def recurse(current_allocation, index):
+		if index == len(objects):
+			all_allocations.append(current_allocation)
+		else:
+			for agent in range(agents):
+				new_allocation = copy.deepcopy(current_allocation)
+				new_allocation[agent].append(objects[index])
+				recurse(new_allocation, index + 1)
+		return 0
+
+	recurse(starting_allocation, 0)
+	return all_allocations
+
+def test():
+	objects = [1, 2, 3]
+	agents = 3
+	all_allocations = get_allocations(objects, agents)
+	for allocation in all_allocations:
+		print allocation
+
+	print len(all_allocations)
+	return 0
+
+test()
+
