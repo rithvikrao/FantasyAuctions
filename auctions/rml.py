@@ -1,6 +1,6 @@
 import random
 
-def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget):
+def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, preferences):
 	"""
 	Input:
 	* [num_players] Int.
@@ -8,6 +8,7 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget):
 	* [players_per_team] Int.
 	* [max_bundle_size] Int.
 	* [budget] Int.
+	* [preferences] List of dicts. Combinatorial preferences for each bidder.
 	* Dynamic bundle input. Bidder queried for nomination bundle at each timestep.
 
 	Output:
@@ -29,7 +30,7 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget):
 	while sum([len(alloc) for alloc in allocs]) < players_per_team * num_bidders:
 		random.shuffle(bidders)
 		for i in range(len(bidders)):
-			nomination = input(f"Bidder {i}, state your nominated bundle:")
+			# TODO: extract nominated bundle from bidder i's preferences
 			# TODO: ensure input is formatted correctly (handle TypeError)
 			# TODO: ensure nominated bundle is smaller than max_bundle_size AND nominating player has space for size of bundle
 			# TODO: for each combination of items in bundle:
@@ -42,11 +43,14 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget):
 	return allocs
 
 
-def wdp(bids):
+def wdp(preferences, nomination):
 	"""
 	Input:
-	* [bids] List of tuples. (bidder_id (int), subset of bundle (set), value for subset (int))
+	* [preferences] List of dicts. Combinatorial preferences for each bidder.
+	* [nomination] Set. Nominated bundle that must be allocated.
 
 	Output:
 	* List of lists. Each bidder receives list of allocated players from bundle.
 	"""
+
+	
