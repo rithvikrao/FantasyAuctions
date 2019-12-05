@@ -6,7 +6,7 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget):
 	* [num_bidders] Int.
 	* [players_per_team] Int.
 	* [max_bundle_size] Int.
-	# [budget] Int.
+	* [budget] Int.
 	* Dynamic bundle input. Bidder queried for nomination bundle at each timestep.
 
 	Output:
