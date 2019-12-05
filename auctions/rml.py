@@ -1,8 +1,9 @@
 import random
 
-def rml(num_bidders, players_per_team, max_bundle_size, budget):
+def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget):
 	"""
 	Input:
+	* [num_players] Int.
 	* [num_bidders] Int.
 	* [players_per_team] Int.
 	* [max_bundle_size] Int.
@@ -13,8 +14,16 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget):
 	* List of lists. Each bidder receives list of allocated players.
 	"""
 
+	# Bidders are 0-indexed
 	bidders = [i for i in range(num_bidders)]
+
+	# Allocation per bidder
 	allocs = [[] for i in range(num_bidders)]
+
+	# Set of allocated players
+	allocated = set()
+
+	# Each bidder has the same budget
 	budgets = [budget for i in range(num_bidders)]
 
 	while sum([len(alloc) for alloc in allocs]) < players_per_team * num_bidders:
