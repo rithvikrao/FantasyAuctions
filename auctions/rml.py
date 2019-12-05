@@ -31,7 +31,7 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget):
 		for i in range(len(bidders)):
 			nomination = input(f"Bidder {i}, state your nominated bundle:")
 			# TODO: ensure input is formatted correctly (handle TypeError)
-			# TODO: ensure nominated bundle is smaller than max_bundle_size
+			# TODO: ensure nominated bundle is smaller than max_bundle_size AND nominating player has space for size of bundle
 			# TODO: for each combination of items in bundle:
 				# TODO: query all users for value only on permutations that are still feasible for them
 				# TODO: ensure input is formatted correctly
@@ -50,4 +50,3 @@ def wdp(bids):
 	Output:
 	* List of lists. Each bidder receives list of allocated players from bundle.
 	"""
-	
