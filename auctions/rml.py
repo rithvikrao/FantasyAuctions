@@ -2,11 +2,11 @@ import random
 import copy
 import sys
 from itertools import chain, combinations
+from gen_prefs import generate_preferences
 
-def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, preferences):
+def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 	"""
 	Input:
-	* [num_players] Int.
 	* [num_bidders] Int.
 	* [players_per_team] Int.
 	* [max_bundle_size] Int.
@@ -18,11 +18,13 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, pre
 	* List of lists. Each bidder receives list of allocated players.
 	"""
 
+	print "\nPreferences"
+	print preferences
 	# Bidders are 0-indexed
 	bidders = [i for i in range(num_bidders)]
 
 	# Allocation per bidder
-	allocs = [[] for i in range(num_bidders)]
+	allocs = [frozenset() for i in range(num_bidders)]
 
 	# Set of allocated players
 	allocated = set()
@@ -32,29 +34,60 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, pre
 	
 	random.shuffle(bidders)
 	while sum([len(alloc) for alloc in allocs]) < players_per_team * num_bidders:
-
 		for i in bidders:
+			print "\nback 2 top. Bidder:"
+			print i
+			
 			maxval = -sys.maxint
 			maxbundle = None
 			for item in preferences[i]:
-				if len(preferences[i][item]) <= max_bundle_size and len(preferences[i][item]) <= players_per_team - len(allocs[i])and preferences[i][item] > maxval:
+				if len(item) <= max_bundle_size and len(item) <= players_per_team - len(allocs[i]) and preferences[i][item] > maxval and not_allocated(item, allocated):
 					maxval = preferences[i][item]
 					maxbundle = item
 			if maxbundle:
-				subsets = powerset(max)
+				subsets = powerset(maxbundle)
 				valuations = [dict() for j in range(len(preferences))]
 				for subset in subsets:
+
 					for j in range(len(preferences)): # iterate over agents
-						# bid for each sub-bundle of nominated bundle is the amount of value it adds to the team each agent already owns
-						new_alloc = subset.union(allocs[j]) 
-						added_value = preferences[j][new_alloc] - preferences[j][allocs[j]]
-						valuations[j][subset] = min(added_value, budgets[j])
-						# OLD STUFF
-						# valuations[j][subset] = min(preferences[j][subset], budgets[j]) # old, if we don't think about already-owned players
-				soln = wdp(valuations, maxbundle, allocs, players_per_team) # this is broken
-			# TODO: update allocs with allocations of bundle items
-			# TODO: update budgets for allocated bidders with VCG payment rule
+						if len(subset) + len(allocs[j]) > players_per_team:
+							valuations[j][subset] = 0
+						else:
+							# bid for each sub-bundle of nominated bundle is the amount of value it adds to the team each agent already owns
+							new_alloc = frozenset(subset.union(allocs[j]))
+							added_value = preferences[j][new_alloc] - preferences[j][allocs[j]]
+							valuations[j][subset] = min(added_value, budgets[j])
+							# OLD STUFF: valuations[j][subset] = min(preferences[j][subset], budgets[j]) # old, if we don't think about already-owned players
+				soln = wdp(valuations, maxbundle, allocs, players_per_team) 
+
+				for j in range(len(soln)):
+					allocs[j] = frozenset(allocs[j].union(soln[j]))
+
+				for player_set in soln:
+					for player in player_set:
+						allocated.add(player)
+						print "\nAdded player to allocated: "
+						print player
+
+				print "\nNow allocated:"
+				print allocated
+
+				payments = vcg_payments(valuations, maxbundle, soln, allocs, players_per_team)
+				budgets = [budgets[k] - payments[k] for k in range(len(payments))]
 	return allocs
+
+def not_allocated(bundle, allocated):
+	print "\n(Within not_allocated) Currently allocated:"
+	print allocated
+
+	for item in bundle:
+		if item in allocated:
+			print "\nITEM ALREADY ALLOCATED"
+			print item
+			return False
+	print "\nBUNDLE NOT YET ALLOCATED"
+	print bundle
+	return True
 
 
 def wdp(valuations, nomination, allocs, players_per_team):
@@ -92,6 +125,14 @@ def wdp(valuations, nomination, allocs, players_per_team):
 
 	poss.sort(key = lambda x: -x[1])
 	if len(poss) == 0:
+		print "\nnomination"
+		print nomination
+		print "\nvaluations"
+		print valuations
+		print "\nallocs"
+		print allocs
+		print "\nposs_allocs"
+		print poss_allocs
 		raise ValueError("No feasible allocations of nominated bundle.")
 	return poss[0][0]
 
@@ -130,7 +171,7 @@ def vcg_payments(valuations, nomination, winning_allocation, allocs, players_per
 	return payments
 
 
-def get_allocations(objects, agents):
+def get_allocations(nomination, agents):
 	"""
 	Input:
 	* [objects] List. Objects to allocate.
@@ -139,6 +180,7 @@ def get_allocations(objects, agents):
 	Output:
 	* List of list of lists. All possible allocations.
 	"""
+	objects = list(nomination)
 	all_allocations = [] # list of list of lists
 	starting_allocation = []
 	for i in range(agents):
@@ -208,7 +250,7 @@ def test_wdp3():
 	print payments
 	return 0
 
-test_wdp3()
+# test_wdp3()
 
 
 def test_powerset():
@@ -232,3 +274,4 @@ def test_get_allocs():
 
 # test_get_allocs()
 
+rml(2, 3, 3, 1000, generate_preferences(['A', 'B', 'C', 'D', 'E', 'F', 'G'], 2, 3))
