@@ -18,8 +18,8 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 	* List of lists. Each bidder receives list of allocated players.
 	"""
 
-	print "\nPreferences"
-	print preferences
+	# print "\nPreferences"
+	# print preferences
 	# Bidders are 0-indexed
 	bidders = [i for i in range(num_bidders)]
 
@@ -35,8 +35,8 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 	random.shuffle(bidders)
 	while sum([len(alloc) for alloc in allocs]) < players_per_team * num_bidders:
 		for i in bidders:
-			print "\nback 2 top. Bidder:"
-			print i
+			# print "\nback 2 top. Bidder:"
+			# print i
 
 			maxval = -sys.maxint
 			maxbundle = None
@@ -56,8 +56,8 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 							# bid for each sub-bundle of nominated bundle is the amount of value it adds to the team each agent already owns
 							new_alloc = frozenset(subset.union(allocs[j]))
 							added_value = preferences[j][new_alloc] - preferences[j][allocs[j]]
-							print "\nAdded value:"
-							print added_value
+							# print "\nAdded value:"
+							# print added_value
 							valuations[j][subset] = min(added_value, budgets[j])
 							# OLD STUFF: valuations[j][subset] = min(preferences[j][subset], budgets[j]) # old, if we don't think about already-owned players
 				soln = wdp(valuations, maxbundle, allocs, players_per_team) 
@@ -70,26 +70,26 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 				for player_set in soln:
 					for player in player_set:
 						allocated.add(player)
-						print "\nAdded player to allocated: "
-						print player
+				# 		print "\nAdded player to allocated: "
+				# 		print player
 
-				print "\nNow allocated:"
-				print allocated
+				# print "\nNow allocated:"
+				# print allocated
 
 				
 	return allocs
 
 def not_allocated(bundle, allocated):
-	print "\n(Within not_allocated) Currently allocated:"
-	print allocated
+	# print "\n(Within not_allocated) Currently allocated:"
+	# print allocated
 
 	for item in bundle:
 		if item in allocated:
-			print "\nITEM ALREADY ALLOCATED"
-			print item
+			# print "\nITEM ALREADY ALLOCATED"
+			# print item
 			return False
-	print "\nBUNDLE NOT YET ALLOCATED"
-	print bundle
+	# print "\nBUNDLE NOT YET ALLOCATED"
+	# print bundle
 	return True
 
 
@@ -128,14 +128,14 @@ def wdp(valuations, nomination, allocs, players_per_team):
 
 	poss.sort(key = lambda x: -x[1])
 	if len(poss) == 0:
-		print "\nnomination"
-		print nomination
-		print "\nvaluations"
-		print valuations
-		print "\nallocs"
-		print allocs
-		print "\nposs_allocs"
-		print poss_allocs
+		# print "\nnomination"
+		# print nomination
+		# print "\nvaluations"
+		# print valuations
+		# print "\nallocs"
+		# print allocs
+		# print "\nposs_allocs"
+		# print poss_allocs
 		raise ValueError("No feasible allocations of nominated bundle.")
 	return poss[0][0]
 
