@@ -5,7 +5,7 @@ from gen_prefs import generate_preferences
 import matplotlib.pyplot as plt
 import numpy as np
 
-def find_allocations(num_agents, team_size, RML_max_bundle_size, RML_budget):
+def find_allocations(num_agents, team_size, RML_max_bundle_size, RML_budget, noise_param=0):
 	# num_agents = 3
 	# team_size = 5
 	# RML_max_bundle_size = 3
@@ -13,7 +13,7 @@ def find_allocations(num_agents, team_size, RML_max_bundle_size, RML_budget):
 	players = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O']
 
 	preferences = generate_preferences(players, num_agents, team_size)
-	rmlResults = rml(num_agents, team_size, RML_max_bundle_size, RML_budget, preferences)
+	rmlResults = rml(num_agents, team_size, RML_max_bundle_size, RML_budget, preferences, noise_param)
 
 	rmlBidderVals = []
 	for bidder in range(len(rmlResults)):
@@ -81,12 +81,12 @@ to_plot_snake = []
 to_plot_rsd = []
 
 # To overwrite file, change to "w". Currently appends 
-f=open("RML.txt", "a+")
+f=open("RMLN3.txt", "a+")
 
 # Comment this out after the first run.
-f.write("Bundle size = 1\n")
+# f.write("Bundle size = 5\n")
 
-for bundle_size in range(1, 2):
+for bundle_size in range(5, 6):
 	print "\nBUNDLE SIZE:"
 	print bundle_size
 
@@ -94,11 +94,11 @@ for bundle_size in range(1, 2):
 	snake_val_aggregate = []
 	rsd_val_aggregate = []
 
-	for i in range(10):
+	for i in range(5):
 		print "Iteration #:"
 		print i + 1
 		print "\n"
-		[rmlv, snakev, rsdv] = find_allocations(3, 5, bundle_size, 10000)
+		[rmlv, snakev, rsdv] = find_allocations(3, 5, bundle_size, 10000, 0.3)
 		rml_val_aggregate.append(sum(rmlv))
 		snake_val_aggregate.append(sum(snakev))
 		rsd_val_aggregate.append(sum(rsdv))
@@ -139,7 +139,7 @@ print to_plot_rml
 print to_plot_snake
 print to_plot_rsd
 
-plt.plot(range(1, 6), to_plot_rml, 'r--')
-plt.plot(range(1, 6), to_plot_snake, 'bs')
-plt.plot(range(1, 6), to_plot_rsd, 'g^')
-plt.show()
+# plt.plot(range(1, 6), to_plot_rml, 'r--')
+# plt.plot(range(1, 6), to_plot_snake, 'bs')
+# plt.plot(range(1, 6), to_plot_rsd, 'g^')
+# plt.show()
