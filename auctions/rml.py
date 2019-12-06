@@ -37,7 +37,7 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 		for i in bidders:
 			print "\nback 2 top. Bidder:"
 			print i
-			
+
 			maxval = -sys.maxint
 			maxbundle = None
 			for item in preferences[i]:
@@ -56,6 +56,8 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 							# bid for each sub-bundle of nominated bundle is the amount of value it adds to the team each agent already owns
 							new_alloc = frozenset(subset.union(allocs[j]))
 							added_value = preferences[j][new_alloc] - preferences[j][allocs[j]]
+							print "\nAdded value:"
+							print added_value
 							valuations[j][subset] = min(added_value, budgets[j])
 							# OLD STUFF: valuations[j][subset] = min(preferences[j][subset], budgets[j]) # old, if we don't think about already-owned players
 				soln = wdp(valuations, maxbundle, allocs, players_per_team) 
@@ -157,10 +159,12 @@ def vcg_payments(valuations, nomination, winning_allocation, allocs, players_per
 	payments = [] # list of length num_agents
 	for i in range(num_agents): # compute payment of agent i
 		others_total_value = get_others_value(winning_allocation, i)
-		alternative_valuations = copy.deepcopy(valuations) # valuations if this agent dropped out (bid for all nonempty bundles is -infty)
+		alternative_valuations = []
+		for elt in valuations:
+			alternative_valuations.append(copy.deepcopy(elt))
 		for bundle in alternative_valuations[i]:
 			if len(bundle) > 0:
-				alternative_valuations[i][bundle] = -sys.maxint
+				alternative_valuations[i][bundle] = -42069
 		alternative_allocation = wdp(alternative_valuations, nomination, allocs, players_per_team)
 		# if len(alternative_allocation[i]) > 0: # this agent was allocated something even though we tried to remove her
 		# 	raise ValueError("Error with computing VCG payments: Externality did not ignore current agent.")
