@@ -80,7 +80,13 @@ to_plot_rml = []
 to_plot_snake = []
 to_plot_rsd = []
 
-for bundle_size in range(1, 6):
+# To overwrite file, change to "w". Currently appends 
+f=open("RML.txt", "a+")
+
+# Comment this out after the first run.
+f.write("Bundle size = 1\n")
+
+for bundle_size in range(1, 2):
 	print "\nBUNDLE SIZE:"
 	print bundle_size
 
@@ -88,7 +94,7 @@ for bundle_size in range(1, 6):
 	snake_val_aggregate = []
 	rsd_val_aggregate = []
 
-	for i in range(1):
+	for i in range(10):
 		print "Iteration #:"
 		print i + 1
 		print "\n"
@@ -97,13 +103,11 @@ for bundle_size in range(1, 6):
 		snake_val_aggregate.append(sum(snakev))
 		rsd_val_aggregate.append(sum(rsdv))
 	
-	# To overwrite file, change to "w". Currently appends 
-	f=open("comparison_results.txt", "a+")
 
 	rml_mean = np.mean(rml_val_aggregate)
 	rml_sd = np.std(rml_val_aggregate)
-	f.write("RML Mean: " + str(rml_mean) + "\n")
-	f.write("RML Stdev: " + str(rml_sd) + "\n")
+	f.write(str(rml_mean) + "\n")
+	# f.write("RML Stdev: " + str(rml_sd) + "\n")
 	print "RML Mean:"
 	print rml_mean
 	print "\nRML Stdev:"
@@ -111,8 +115,8 @@ for bundle_size in range(1, 6):
 
 	snake_mean = np.mean(snake_val_aggregate)
 	snake_sd = np.std(snake_val_aggregate)
-	f.write("Snake Mean: " + str(snake_mean) + "\n")
-	f.write("Snake Stdev: " + str(snake_sd) + "\n")
+	# f.write("Snake Mean: " + str(snake_mean) + "\n")
+	# f.write("Snake Stdev: " + str(snake_sd) + "\n")
 	print "\nSnake Mean:"
 	print snake_mean
 	print "\nSnake Stdev:"
@@ -120,8 +124,8 @@ for bundle_size in range(1, 6):
 
 	rsd_mean = np.mean(rsd_val_aggregate)
 	rsd_sd = np.std(rsd_val_aggregate)
-	f.write("RSD Mean: " + str(rsd_mean) + "\n")
-	f.write("RSD Stdev: " + str(rsd_sd) + "\n\n")
+	# f.write("RSD Mean: " + str(rsd_mean) + "\n")
+	# f.write("RSD Stdev: " + str(rsd_sd) + "\n\n")
 	print "\nRSD Mean:"
 	print rsd_mean
 	print "\nRSD Stdev:"
