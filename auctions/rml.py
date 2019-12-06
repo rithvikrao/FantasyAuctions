@@ -32,12 +32,15 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, pre
 	while sum([len(alloc) for alloc in allocs]) < players_per_team * num_bidders:
 		random.shuffle(bidders)
 		for i in range(len(bidders)):
-			# TODO: extract nominated bundle from bidder i's preferences
-			# TODO: ensure nominated bundle is smaller than max_bundle_size AND nominating player has space for size of bundle
-			# TODO: solve WDP on bundle with these values
+			maxval = -sys.maxint
+			maxbundle = None
+			for item in preferences[i]:
+				if len(preferences[i][item]) <= max_bundle_size and len(preferences[i][item]) < players_per_team - len(allocs[i])and preferences[i][item] > maxval:
+					maxval = preferences[i][item]
+					maxbundle = item
+			soln = wdp(preferences, maxbundle, allocs, players_per_team)
 			# TODO: update allocs with allocations of bundle items
 			# TODO: update budgets for allocated bidders with VCG payment rule
-			pass
 	return allocs
 
 
