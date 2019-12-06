@@ -53,7 +53,7 @@ def wdp(valuations, nomination, allocs, players_per_team):
 	* List of lists. Each bidder receives list of allocated players from bundle.
 	"""
 	poss_allocs = get_allocations(nomination, len(valuations))
-	values = [None for i in range(len(valuations))]
+	values = [None for i in range(len(poss_allocs))]
 
 	def is_feasible(allocation):
 		# Checks whether there is enough room on team for package
@@ -64,6 +64,7 @@ def wdp(valuations, nomination, allocs, players_per_team):
 
 	for i in range(len(poss_allocs)):
 		if is_feasible(poss_allocs[i]):
+			# poss_allocs[i]
 			values[i] = sum([valuations[j][poss_allocs[i][j]] for j in range(len(poss_allocs[i]))])
 
 	poss = []
@@ -74,6 +75,8 @@ def wdp(valuations, nomination, allocs, players_per_team):
 			poss.append((poss_allocs[i], values[i]))
 
 	poss.sort(key = lambda x: -x[1])
+	if len(poss) == 0:
+		raise ValueError("No feasible allocations of nominated bundle.")
 	return poss[0][0]
 
 def vcg_payment(preferences, nomination):
@@ -104,6 +107,8 @@ def get_allocations(objects, agents):
 
 	def recurse(current_allocation, index):
 		if index == len(objects):
+			for i in range(len(current_allocation)):
+				current_allocation[i] = frozenset(current_allocation[i])
 			all_allocations.append(current_allocation)
 		else:
 			for agent in range(agents):
@@ -114,6 +119,23 @@ def get_allocations(objects, agents):
 
 	recurse(starting_allocation, 0)
 	return all_allocations
+
+#def wdp(valuations, nomination, allocs, players_per_team):
+
+def test_wdp():
+	num_agents = 2
+	players_per_team = 3
+	allocs = [['a'], ['d']]
+	nomination = ['a', 'b', 'c']
+	valuations = []
+	subsets = [frozenset(['a']), frozenset(['b']), frozenset(['c']), frozenset(['a', 'b']), frozenset(['a', 'c']), frozenset(['b', 'c']), frozenset(['a', 'b', 'c']), frozenset([])]
+	valuations.append({subsets[0]: 5, subsets[1]: 3, subsets[2]: 1, subsets[3]: 10, subsets[4]: 12, subsets[5]: 4, subsets[6]: 13, subsets[7]: 0})
+	valuations.append({subsets[0]: 1, subsets[1]: 4, subsets[2]: 5, subsets[3]: 4, subsets[4]: 6, subsets[5]: 8, subsets[6]: 9, subsets[7]: 0})
+	win = wdp(valuations, nomination, allocs, players_per_team)
+	print win
+	return 0
+
+test_wdp()
 
 # def test_get_allocs():
 # 	objects = [1, 2, 3]
