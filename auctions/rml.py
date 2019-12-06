@@ -6,9 +6,8 @@ from gen_prefs import generate_preferences
 from scipy.stats import truncnorm
 import math
 
-NOISE_PARAMETER = 0.1
 
-def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
+def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences, noise_param = 0):
 	"""
 	Input:
 	* [num_bidders] Int.
@@ -62,7 +61,7 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 							added_value = preferences[j][new_alloc] - preferences[j][allocs[j]]
 							# print "\nAdded value:"
 							# print added_value
-							valuations[j][subset] = min(noise_scaling(max_bundle_size) * added_value, budgets[j])
+							valuations[j][subset] = min(noise_scaling(max_bundle_size, noise_param) * added_value, budgets[j])
 							# OLD STUFF: valuations[j][subset] = min(preferences[j][subset], budgets[j]) # old, if we don't think about already-owned players
 				soln = wdp(valuations, maxbundle, allocs, players_per_team) 
 				payments = vcg_payments(valuations, maxbundle, soln, allocs, players_per_team)
@@ -81,8 +80,8 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 				# print allocated
 	return allocs
 
-def noise_scaling(max_bundle_size):
-	return truncnorm.rvs(0., 2., loc=1, scale = (max_bundle_size - 1) * NOISE_PARAMETER)
+def noise_scaling(max_bundle_size, noise_param):
+	return truncnorm.rvs(0., 2., loc=1, scale = (max_bundle_size - 1) * noise_param)
 
 def test_noise():
 	for i in range(1, 10):
@@ -290,4 +289,4 @@ def test_get_allocs():
 
 # test_get_allocs()
 
-print rml(2, 3, 3, 1000, generate_preferences(['A', 'B', 'C', 'D', 'E', 'F', 'G'], 2, 3))
+# print rml(2, 3, 3, 1000, generate_preferences(['A', 'B', 'C', 'D', 'E', 'F', 'G'], 2, 3))
