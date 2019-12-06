@@ -3,6 +3,10 @@ import copy
 import sys
 from itertools import chain, combinations
 from gen_prefs import generate_preferences
+from scipy.stats import truncnorm
+import math
+
+NOISE_PARAMETER = 0.1
 
 def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 	"""
@@ -58,7 +62,7 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 							added_value = preferences[j][new_alloc] - preferences[j][allocs[j]]
 							# print "\nAdded value:"
 							# print added_value
-							valuations[j][subset] = min(added_value, budgets[j])
+							valuations[j][subset] = min(noise_scaling(max_bundle_size) * added_value, budgets[j])
 							# OLD STUFF: valuations[j][subset] = min(preferences[j][subset], budgets[j]) # old, if we don't think about already-owned players
 				soln = wdp(valuations, maxbundle, allocs, players_per_team) 
 				payments = vcg_payments(valuations, maxbundle, soln, allocs, players_per_team)
@@ -75,9 +79,16 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 
 				# print "\nNow allocated:"
 				# print allocated
-
-				
 	return allocs
+
+def noise_scaling(max_bundle_size):
+	return truncnorm.rvs(0., 2., loc=1, scale = (max_bundle_size - 1) * NOISE_PARAMETER)
+
+def test_noise():
+	for i in range(1, 10):
+		print [noise_scaling(i) for j in range(10)]
+	return
+# test_noise()
 
 def not_allocated(bundle, allocated):
 	# print "\n(Within not_allocated) Currently allocated:"
