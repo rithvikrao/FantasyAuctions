@@ -1,6 +1,7 @@
 import random
 import copy
 import sys
+from itertools import chain, combinations
 
 def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, preferences):
 	"""
@@ -10,7 +11,7 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, pre
 	* [players_per_team] Int.
 	* [max_bundle_size] Int.
 	* [budget] Int.
-	* [preferences] List of dicts. Combinatorial preferences for each bidder.
+	* [preferences] List of dicts. Combinatorial preferences for each bidder. frozenset -> int
 	* Dynamic bundle input. Bidder queried for nomination bundle at each timestep.
 
 	Output:
@@ -28,17 +29,24 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, pre
 
 	# Each bidder has the same budget
 	budgets = [budget for i in range(num_bidders)]
-
+	
+	random.shuffle(bidders)
 	while sum([len(alloc) for alloc in allocs]) < players_per_team * num_bidders:
-		random.shuffle(bidders)
-		for i in range(len(bidders)):
+
+		for i in bidders:
 			maxval = -sys.maxint
 			maxbundle = None
 			for item in preferences[i]:
-				if len(preferences[i][item]) <= max_bundle_size and len(preferences[i][item]) < players_per_team - len(allocs[i])and preferences[i][item] > maxval:
+				if len(preferences[i][item]) <= max_bundle_size and len(preferences[i][item]) <= players_per_team - len(allocs[i])and preferences[i][item] > maxval:
 					maxval = preferences[i][item]
 					maxbundle = item
-			soln = wdp(preferences, maxbundle, allocs, players_per_team)
+			if maxbundle:
+				subsets = powerset(max)
+				valuations = [dict() for j in range(len(preferences))]
+				for subset in subsets:
+					for j in range(len(preferences)): # iterate over agents
+						valuations[j][subset] = min(preferences[j][subset], budgets[j])
+				soln = wdp(valuations, maxbundle, allocs, players_per_team) # this is broken
 			# TODO: update allocs with allocations of bundle items
 			# TODO: update budgets for allocated bidders with VCG payment rule
 	return allocs
@@ -125,6 +133,16 @@ def get_allocations(objects, agents):
 
 #def wdp(valuations, nomination, allocs, players_per_team):
 
+# nomination is a frozenset
+# return list of frozensets (list of subsets)
+def powerset(nomination):
+    s = list(nomination)
+    subsets = list(chain.from_iterable(combinations(s, r) for r in range(len(s)+1)))
+    subset_list = []
+    for subset in subsets:
+    	subset_list.append(frozenset(subset))
+    return subset_list
+
 def test_wdp():
 	num_agents = 2
 	players_per_team = 3
@@ -138,17 +156,24 @@ def test_wdp():
 	print win
 	return 0
 
-test_wdp()
+def test_powerset():
+	nomination = frozenset(['a', 'b', 'c'])
+	print powerset(nomination)
+	return 0
 
-# def test_get_allocs():
-# 	objects = [1, 2, 3]
-# 	agents = 3
-# 	all_allocations = get_allocations(objects, agents)
-# 	for allocation in all_allocations:
-# 		print allocation
+test_powerset()
 
-# 	print len(all_allocations)
-# 	return 0
+#test_wdp()
+
+def test_get_allocs():
+	objects = [1, 2, 3]
+	agents = 3
+	all_allocations = get_allocations(objects, agents)
+	for allocation in all_allocations:
+		print allocation
+
+	print len(all_allocations)
+	return 0
 
 # test_get_allocs()
 
