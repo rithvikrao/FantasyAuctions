@@ -45,7 +45,12 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, pre
 				valuations = [dict() for j in range(len(preferences))]
 				for subset in subsets:
 					for j in range(len(preferences)): # iterate over agents
-						valuations[j][subset] = min(preferences[j][subset], budgets[j])
+						# bid for each sub-bundle of nominated bundle is the amount of value it adds to the team each agent already owns
+						new_alloc = subset.union(allocs[j]) 
+						added_value = preferences[j][new_alloc] - preferences[j][allocs[j]]
+						valuations[j][subset] = min(added_value, budgets[j])
+						# OLD STUFF
+						# valuations[j][subset] = min(preferences[j][subset], budgets[j]) # old, if we don't think about already-owned players
 				soln = wdp(valuations, maxbundle, allocs, players_per_team) # this is broken
 			# TODO: update allocs with allocations of bundle items
 			# TODO: update budgets for allocated bidders with VCG payment rule
@@ -90,16 +95,39 @@ def wdp(valuations, nomination, allocs, players_per_team):
 		raise ValueError("No feasible allocations of nominated bundle.")
 	return poss[0][0]
 
-def vcg_payment(preferences, nomination):
+def vcg_payments(valuations, nomination, winning_allocation, allocs, players_per_team):
 	"""
 	Input: 
-	* [preferences] List of dicts.
-	* [nomination] Set.
+	* [valuations] List of dicts. Each dict is frozenset -> int.
+	* [nomination] Set. Bundle of players up for bidding.
+	* [winning_allocation] List of frozensets. Frozenset at index i is bundle given to agent i.
 
 	Output:
 	* List of VCG payments. Each bidder receives a VCG payment.
 	"""
-	return
+	def get_others_value(allocation, this_agent):
+		others_total = 0
+		for j in range(num_agents):
+			if j != this_agent:
+				others_total += valuations[j][allocation[j]]
+		return others_total
+
+	num_agents = len(winning_allocation)
+	payments = [] # list of length num_agents
+	for i in range(num_agents): # compute payment of agent i
+		others_total_value = get_others_value(winning_allocation, i)
+		alternative_valuations = copy.deepcopy(valuations) # valuations if this agent dropped out (bid for all nonempty bundles is -infty)
+		for bundle in alternative_valuations[i]:
+			if len(bundle) > 0:
+				alternative_valuations[i][bundle] = -sys.maxint
+		alternative_allocation = wdp(alternative_valuations, nomination, allocs, players_per_team)
+		# if len(alternative_allocation[i]) > 0: # this agent was allocated something even though we tried to remove her
+		# 	raise ValueError("Error with computing VCG payments: Externality did not ignore current agent.")
+		alternative_other_total_value = get_others_value(alternative_allocation, i)
+		externality = alternative_other_total_value - others_total_value
+		payments.append(externality)
+
+	return payments
 
 
 def get_allocations(objects, agents):
@@ -143,27 +171,54 @@ def powerset(nomination):
     	subset_list.append(frozenset(subset))
     return subset_list
 
-def test_wdp():
+def test_wdp2():
 	num_agents = 2
 	players_per_team = 3
-	allocs = [['a'], ['d']]
+	allocs = [['e'], ['d']]
 	nomination = ['a', 'b', 'c']
+	# allocs = [[], []]
+	# nomination = ['a', 'b', 'c']
 	valuations = []
 	subsets = [frozenset(['a']), frozenset(['b']), frozenset(['c']), frozenset(['a', 'b']), frozenset(['a', 'c']), frozenset(['b', 'c']), frozenset(['a', 'b', 'c']), frozenset([])]
 	valuations.append({subsets[0]: 5, subsets[1]: 3, subsets[2]: 1, subsets[3]: 10, subsets[4]: 12, subsets[5]: 4, subsets[6]: 13, subsets[7]: 0})
 	valuations.append({subsets[0]: 1, subsets[1]: 4, subsets[2]: 5, subsets[3]: 4, subsets[4]: 6, subsets[5]: 8, subsets[6]: 9, subsets[7]: 0})
 	win = wdp(valuations, nomination, allocs, players_per_team)
+	payments = vcg_payments(valuations, nomination, win, allocs, players_per_team)
 	print win
+	print payments
 	return 0
+
+#test_wdp2()
+
+def test_wdp3():
+	num_agents = 3
+	players_per_team = 3
+	allocs = [[], [], []]
+	nomination = ['a', 'b', 'c']
+	# allocs = [[], []]
+	# nomination = ['a', 'b', 'c']
+	valuations = []
+	subsets = [frozenset(['a']), frozenset(['b']), frozenset(['c']), frozenset(['a', 'b']), frozenset(['a', 'c']), frozenset(['b', 'c']), frozenset(['a', 'b', 'c']), frozenset([])]
+	valuations.append({subsets[0]: 5, subsets[1]: 3, subsets[2]: 1, subsets[3]: 10, subsets[4]: 12, subsets[5]: 4, subsets[6]: 13, subsets[7]: 0})
+	valuations.append({subsets[0]: 1, subsets[1]: 4, subsets[2]: 5, subsets[3]: 4, subsets[4]: 6, subsets[5]: 8, subsets[6]: 9, subsets[7]: 0})
+	valuations.append({subsets[0]: 1, subsets[1]: 5, subsets[2]: 1, subsets[3]: 7, subsets[4]: 5, subsets[5]: 8, subsets[6]: 9, subsets[7]: 0})
+	win = wdp(valuations, nomination, allocs, players_per_team)
+	payments = vcg_payments(valuations, nomination, win, allocs, players_per_team)
+	print win
+	print payments
+	return 0
+
+test_wdp3()
+
 
 def test_powerset():
 	nomination = frozenset(['a', 'b', 'c'])
 	print powerset(nomination)
 	return 0
 
-test_powerset()
+#test_powerset()
 
-#test_wdp()
+
 
 def test_get_allocs():
 	objects = [1, 2, 3]
