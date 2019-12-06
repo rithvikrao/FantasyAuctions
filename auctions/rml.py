@@ -40,19 +40,34 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, pre
 	return allocs
 
 
-def wdp(preferences, nomination):
+def wdp(preferences, nomination, allocs, players_per_team):
 	"""
 	Input:
 	* [preferences] List of dicts. Combinatorial preferences for each bidder.
 	* [nomination] Set. Nominated bundle that must be allocated.
+	* [allocs] List of lists. Each bidder's current allocation.
+	* [players_per_team] Int.
 
 	Output:
 	* List of lists. Each bidder receives list of allocated players from bundle.
 	"""
 	# Maintain list of tuples. First elt is allocation, second elt is its value.
-	poss = partition(nomination)
+	poss_allocs = get_allocations(nomination, len(preferences))
+	values = []
 
-	return
+	def is_feasible(allocation):
+		# TODO: Determine whether allocation is feasible.
+		# Must check (1) there is enough room on team for package, (2) budget allows whatever VCG payment is.
+		return True
+
+	for i in range(poss_allocs):
+		if is_feasible(poss_allocs[i]):
+			values[i] = sum([preferences[i][bundle] for bundle in poss_allocs[i]])
+		else:
+			values[i] = None
+	poss = [(poss_allocs[i], values[i]) for i in range(len(poss_allocs))]
+	poss.sort(key = lambda x: -x[1])
+	return poss[0][0]
 
 def vcg_payment(preferences, nomination):
 	"""
@@ -65,23 +80,16 @@ def vcg_payment(preferences, nomination):
 	"""
 	return
 
-# Stolen from https://stackoverflow.com/questions/19368375/set-partitions-in-python
-def partition(collection):
-    if len(collection) == 1:
-        yield [ collection ]
-        return
 
-    first = collection[0]
-    for smaller in partition(collection[1:]):
-        # insert `first` in each of the subpartition's subsets
-        for n, subset in enumerate(smaller):
-            yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
-        # put `first` in its own subset 
-        yield [ [ first ] ] + smaller
-
-# objects = list of objects
-# agents = int
 def get_allocations(objects, agents):
+	"""
+	Input:
+	* [objects] List. Objects to allocate.
+	* [agents] Int. Number of agents.
+
+	Output:
+	* List of list of lists. All possible allocations.
+	"""
 	all_allocations = [] # list of list of lists
 	starting_allocation = []
 	for i in range(agents):
@@ -100,15 +108,15 @@ def get_allocations(objects, agents):
 	recurse(starting_allocation, 0)
 	return all_allocations
 
-def test():
-	objects = [1, 2, 3]
-	agents = 3
-	all_allocations = get_allocations(objects, agents)
-	for allocation in all_allocations:
-		print allocation
+# def test_get_allocs():
+# 	objects = [1, 2, 3]
+# 	agents = 3
+# 	all_allocations = get_allocations(objects, agents)
+# 	for allocation in all_allocations:
+# 		print allocation
 
-	print len(all_allocations)
-	return 0
+# 	print len(all_allocations)
+# 	return 0
 
-test()
+# test_get_allocs()
 
