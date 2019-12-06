@@ -96,10 +96,14 @@ for bundle_size in range(1, 6):
 		rml_val_aggregate.append(sum(rmlv))
 		snake_val_aggregate.append(sum(snakev))
 		rsd_val_aggregate.append(sum(rsdv))
+	
+	# To overwrite file, change to "w". Currently appends 
+	f=open("comparison_results.txt", "a+")
 
 	rml_mean = np.mean(rml_val_aggregate)
 	rml_sd = np.std(rml_val_aggregate)
-
+	f.write("RML Mean: " + str(rml_mean) + "\n")
+	f.write("RML Stdev: " + str(rml_sd) + "\n")
 	print "RML Mean:"
 	print rml_mean
 	print "\nRML Stdev:"
@@ -107,6 +111,8 @@ for bundle_size in range(1, 6):
 
 	snake_mean = np.mean(snake_val_aggregate)
 	snake_sd = np.std(snake_val_aggregate)
+	f.write("Snake Mean: " + str(snake_mean) + "\n")
+	f.write("Snake Stdev: " + str(snake_sd) + "\n")
 	print "\nSnake Mean:"
 	print snake_mean
 	print "\nSnake Stdev:"
@@ -114,6 +120,8 @@ for bundle_size in range(1, 6):
 
 	rsd_mean = np.mean(rsd_val_aggregate)
 	rsd_sd = np.std(rsd_val_aggregate)
+	f.write("RSD Mean: " + str(rsd_mean) + "\n")
+	f.write("RSD Stdev: " + str(rsd_sd) + "\n\n")
 	print "\nRSD Mean:"
 	print rsd_mean
 	print "\nRSD Stdev:"
