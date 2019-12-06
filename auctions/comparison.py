@@ -35,11 +35,16 @@ for i in range(len(singleton_values)):
     for (singleton, value) in tuples:
         ordinal_prefs[i].append(singleton)
 
-
-
 snake_draft_alloc = snake_draft(ordinal_prefs, team_size)
-for bidder in range(len(snake_draft_alloc)):
-    snake_draft_values.append(preferences[bidder][snake_draft_alloc[bidder]])
+
+for i in range(len(snake_draft_alloc)):
+	bidder_alloc = snake_draft_alloc[i]
+	combo = set() 
+
+	for player in bidder_alloc:
+		combo = combo.union(player)
+
+	snake_draft_values[i] = preferences[i][frozenset(combo)]
 
 print "\nRML Allocation:"
 print rmlResults
