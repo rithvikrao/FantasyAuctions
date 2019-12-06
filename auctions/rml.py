@@ -1,5 +1,6 @@
 import random
 import copy
+import sys
 
 def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, preferences):
 	"""
@@ -40,10 +41,10 @@ def rml(num_players, num_bidders, players_per_team, max_bundle_size, budget, pre
 	return allocs
 
 
-def wdp(preferences, nomination, allocs, players_per_team):
+def wdp(valuations, nomination, allocs, players_per_team):
 	"""
 	Input:
-	* [preferences] List of dicts. Combinatorial preferences for each bidder.
+	* [valuations] List of dicts. Combinatorial valuations for each bidder.
 	* [nomination] Set. Nominated bundle that must be allocated.
 	* [allocs] List of lists. Each bidder's current allocation.
 	* [players_per_team] Int.
@@ -51,21 +52,27 @@ def wdp(preferences, nomination, allocs, players_per_team):
 	Output:
 	* List of lists. Each bidder receives list of allocated players from bundle.
 	"""
-	# Maintain list of tuples. First elt is allocation, second elt is its value.
-	poss_allocs = get_allocations(nomination, len(preferences))
-	values = []
+	poss_allocs = get_allocations(nomination, len(valuations))
+	values = [None for i in range(len(valuations))]
 
 	def is_feasible(allocation):
-		# TODO: Determine whether allocation is feasible.
-		# Must check (1) there is enough room on team for package, (2) budget allows whatever VCG payment is.
+		# Checks whether there is enough room on team for package
+		for i in range(len(allocation)):
+			if len(allocation[i]) > players_per_team - len(allocs[i]):
+				return False
 		return True
 
-	for i in range(poss_allocs):
+	for i in range(len(poss_allocs)):
 		if is_feasible(poss_allocs[i]):
-			values[i] = sum([preferences[i][bundle] for bundle in poss_allocs[i]])
-		else:
-			values[i] = None
-	poss = [(poss_allocs[i], values[i]) for i in range(len(poss_allocs))]
+			values[i] = sum([valuations[j][poss_allocs[i][j]] for j in range(len(poss_allocs[i]))])
+
+	poss = []
+
+	# Remove all infeasible allocations
+	for i in range(len(poss_allocs)):
+		if values[i]:
+			poss.append((poss_allocs[i], values[i]))
+
 	poss.sort(key = lambda x: -x[1])
 	return poss[0][0]
 
