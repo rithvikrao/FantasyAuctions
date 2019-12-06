@@ -61,6 +61,8 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 							valuations[j][subset] = min(added_value, budgets[j])
 							# OLD STUFF: valuations[j][subset] = min(preferences[j][subset], budgets[j]) # old, if we don't think about already-owned players
 				soln = wdp(valuations, maxbundle, allocs, players_per_team) 
+				payments = vcg_payments(valuations, maxbundle, soln, allocs, players_per_team)
+				budgets = [budgets[k] - payments[k] for k in range(len(payments))]
 
 				for j in range(len(soln)):
 					allocs[j] = frozenset(allocs[j].union(soln[j]))
@@ -74,8 +76,7 @@ def rml(num_bidders, players_per_team, max_bundle_size, budget, preferences):
 				print "\nNow allocated:"
 				print allocated
 
-				payments = vcg_payments(valuations, maxbundle, soln, allocs, players_per_team)
-				budgets = [budgets[k] - payments[k] for k in range(len(payments))]
+				
 	return allocs
 
 def not_allocated(bundle, allocated):
@@ -164,7 +165,7 @@ def vcg_payments(valuations, nomination, winning_allocation, allocs, players_per
 			alternative_valuations.append(copy.deepcopy(elt))
 		for bundle in alternative_valuations[i]:
 			if len(bundle) > 0:
-				alternative_valuations[i][bundle] = -42069
+				alternative_valuations[i][bundle] = -sys.maxint
 		alternative_allocation = wdp(alternative_valuations, nomination, allocs, players_per_team)
 		# if len(alternative_allocation[i]) > 0: # this agent was allocated something even though we tried to remove her
 		# 	raise ValueError("Error with computing VCG payments: Externality did not ignore current agent.")
@@ -278,4 +279,4 @@ def test_get_allocs():
 
 # test_get_allocs()
 
-rml(2, 3, 3, 1000, generate_preferences(['A', 'B', 'C', 'D', 'E', 'F', 'G'], 2, 3))
+print rml(2, 3, 3, 1000, generate_preferences(['A', 'B', 'C', 'D', 'E', 'F', 'G'], 2, 3))
